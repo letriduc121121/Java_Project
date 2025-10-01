@@ -22,19 +22,25 @@ public class DistrictRepositoryImpl implements DistrictRepository {
 
 
 	@Override
-	public String findDistrictNameById(Long id) {
-		String sql = "SELECT name FROM district WHERE id = " + id;
-		String districtName = null;
+	public DistrictEntity findDistrictById(Long buildingId) {
+		String sql = "SELECT * FROM district WHERE id = " + buildingId;
+		DistrictEntity districtEntity = null;
+		
 		try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
 				Statement st = conn.createStatement();
 				ResultSet rs = st.executeQuery(sql)) {
+			
 			if (rs.next()) {
-				districtName = rs.getString("name");
+				districtEntity = new DistrictEntity();
+				districtEntity.setId(rs.getLong("id"));
+				districtEntity.setCode(rs.getString("code"));
+				districtEntity.setName(rs.getString("name"));
 			}
+			
 		} catch (SQLException ex) {
 			ex.printStackTrace();
 		}
 
-		return districtName;
+		return districtEntity;
 	}
 }

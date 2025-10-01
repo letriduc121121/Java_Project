@@ -25,6 +25,24 @@ public class BuildingAPI {
 	// public List<BuildingResponseDTO> searchBuilding(@RequestBody BuildingRequestDTO requestDTO) {
 	// 	return buildingService.searchBuildings(requestDTO);
 	// }
+//	{
+//		  "name": "River View Tower",
+//		  "floorArea": 1200,
+//		  "districtId": 2,
+//		  "ward": "Phường An Lạc",
+//		  "street": "456 Võ Văn Kiệt",
+//		  "numberOfBasement": 1,
+//		  "direction": "Tây Bắc",
+//		  "level": "15 tầng",
+//		  "areaFrom": 50,
+//		  "areaTo": 200,
+//		  "rentPriceFrom": 5,
+//		  "rentPriceTo": 30,
+//		  "managerName": "Anh Hải",
+//		  "managerPhoneNumber": "0912345678",
+//		  "staffId": 4,
+//		  "typeCode": ["noi-that"]
+//		}
 	@GetMapping()
 	public Object searchBuilding(@RequestParam(name = "name", required = false) String name,
 			@RequestParam(name = "floorArea", required = false) Long floorArea,

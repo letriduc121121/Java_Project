@@ -6,6 +6,7 @@ import com.javaweb.repository.entity.DistrictEntity;
 
 public interface DistrictRepository {
 	//method find name district by districtId
-	String findDistrictNameById(Long id);
+	//tra han 1 entity 
+	DistrictEntity findDistrictById(Long buildingId);
 
 }
