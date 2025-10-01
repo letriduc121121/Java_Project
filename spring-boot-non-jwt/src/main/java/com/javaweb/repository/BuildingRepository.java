@@ -2,9 +2,14 @@ package com.javaweb.repository;
 
 import java.util.List;
 import com.javaweb.repository.entity.BuildingEntity;
+import com.javaweb.model.DTO.BuildingRequestDTO;
+import com.javaweb.model.DTO.BuildingResponseDTO;
 
 public interface BuildingRepository {
-	//cac phuong truu tuong
-	//ham lam viec vs database
-	List<BuildingEntity> findAll(String name, Long rentPrice);
+//	List<BuildingEntity> searchBuildings(String name, Long floorArea, Long districtId, String ward, 
+//			String street, Long numberOfBasement, String direction, String level, Long areaFrom, 
+//			Long areaTo, Long rentPriceFrom, Long rentPriceTo, String managerName, 
+//			String managerPhoneNumber, Long staffId, List<String> rentTypes);
+	
+	List<BuildingEntity> searchBuildings(BuildingRequestDTO requestDTO);
 }
