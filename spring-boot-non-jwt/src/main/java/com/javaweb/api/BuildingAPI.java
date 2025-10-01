@@ -63,8 +63,10 @@ public class BuildingAPI {
 		requestDTO.setManagerPhoneNumber(managerPhoneNumber);
 		requestDTO.setStaffId(staffId);
 		requestDTO.setTypeCode(typeCode);
-
+//		System.out.println(requestDTO.getManagerName() + " "+requestDTO.getManagerPhoneNumber());
 		List<BuildingResponseDTO> buildingResponseDTOs = buildingService.searchBuildings(requestDTO);
+		
+		
 		return buildingResponseDTOs;
 	}
 

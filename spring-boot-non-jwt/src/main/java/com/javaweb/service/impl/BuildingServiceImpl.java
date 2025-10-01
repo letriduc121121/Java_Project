@@ -45,7 +45,6 @@ public class BuildingServiceImpl implements BuildingService {
 
 			//2 Name
 			buildingResponseDTO.setName(entity.getName());
-
 			//3 Address (street+ward+name district)
 			DistrictEntity districtEntity = districtRepository.findDistrictById(entity.getDistrictId());
 			String districtName = districtEntity.getName();

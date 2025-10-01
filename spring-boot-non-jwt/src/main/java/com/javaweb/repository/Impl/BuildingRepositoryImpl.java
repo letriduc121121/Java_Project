@@ -27,7 +27,7 @@ public class BuildingRepositoryImpl implements BuildingRepository {
 
 		// func1
 		String sql = buildQuery(requestDTO);
-
+//		System.out.println(sql);
 		// func2
 		List<BuildingEntity> buildingEntities = executeQuery(sql);
 
@@ -36,14 +36,14 @@ public class BuildingRepositoryImpl implements BuildingRepository {
 
 	private String buildQuery(BuildingRequestDTO requestDTO) {
 
-		String sql = "SELECT DISTINCT b.* FROM building b ";
+		String sql = "SELECT  b.* FROM building b ";
 
 		// wwith rentare
 		if (requestDTO.getAreaFrom() != null || requestDTO.getAreaTo() != null) {
 			sql += " INNER JOIN rentarea r ON r.buildingid = b.id ";
 		}
 
-		//  with assignmentbuilding
+		// with assignmentbuilding
 		if (requestDTO.getStaffId() != null) {
 			sql += " INNER JOIN assignmentbuilding ab ON ab.buildingid = b.id ";
 		}
@@ -106,11 +106,13 @@ public class BuildingRepositoryImpl implements BuildingRepository {
 		}
 		// 13
 		if (requestDTO.getManagerName() != null && !requestDTO.getManagerName().isEmpty()) {
-			sql += " AND b.managername LIKE '%" + requestDTO.getManagerName() + "%'";
+			String name = requestDTO.getManagerName().trim();  
+		    sql += " AND b.managername LIKE '%" + name + "%' ";
 		}
 		// 14
 		if (requestDTO.getManagerPhoneNumber() != null && !requestDTO.getManagerPhoneNumber().isEmpty()) {
-			sql += " AND b.managerphonenumber LIKE '%" + requestDTO.getManagerPhoneNumber() + "%'";
+			String phone = requestDTO.getManagerPhoneNumber().trim();
+		    sql += " AND b.managerphonenumber LIKE '%" + phone + "%' ";
 		}
 		// 15
 		if (requestDTO.getStaffId() != null) {
@@ -124,6 +126,7 @@ public class BuildingRepositoryImpl implements BuildingRepository {
 	}
 
 	private List<BuildingEntity> executeQuery(String sql) {
+
 		List<BuildingEntity> buildingEntities = new ArrayList<>();
 		try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
 				Statement st = conn.createStatement();
