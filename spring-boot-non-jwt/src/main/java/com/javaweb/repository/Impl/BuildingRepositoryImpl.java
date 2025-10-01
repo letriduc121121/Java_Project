@@ -23,39 +23,33 @@ public class BuildingRepositoryImpl implements BuildingRepository {
 	static final String PASS = "123456";
 
 	@Override
-	public List<BuildingEntity> searchBuildings(String name, Long floorArea, Long districtId, String ward,
-			String street, Long numberOfBasement, String direction, String level, Long areaFrom, Long areaTo,
-			Long rentPriceFrom, Long rentPriceTo, String managerName, String managerPhoneNumber, Long staffId,
-			List<String> rentTypes) {
-		
+	public List<BuildingEntity> searchBuildings(BuildingRequestDTO requestDTO) {
+
 		// func1
-		String sql = buildQuery(name, floorArea, districtId, ward, street, numberOfBasement, direction, level, areaFrom,
-				areaTo, rentPriceFrom, rentPriceTo, managerName, managerPhoneNumber, staffId, rentTypes);
-		
+		String sql = buildQuery(requestDTO);
+
 		// func2
 		List<BuildingEntity> buildingEntities = executeQuery(sql);
-		
+
 		return buildingEntities;
 	}
 
-	private String buildQuery(String name, Long floorArea, Long districtId, String ward, String street,
-			Long numberOfBasement, String direction, String level, Long areaFrom, Long areaTo, Long rentPriceFrom,
-			Long rentPriceTo, String managerName, String managerPhoneNumber, Long staffId, List<String> rentTypes) {
+	private String buildQuery(BuildingRequestDTO requestDTO) {
 
 		String sql = "SELECT DISTINCT b.* FROM building b ";
 
 		// wwith rentare
-		if (areaFrom != null || areaTo != null) {
+		if (requestDTO.getAreaFrom() != null || requestDTO.getAreaTo() != null) {
 			sql += " INNER JOIN rentarea r ON r.buildingid = b.id ";
 		}
 
 		//  with assignmentbuilding
-		if (staffId != null) {
+		if (requestDTO.getStaffId() != null) {
 			sql += " INNER JOIN assignmentbuilding ab ON ab.buildingid = b.id ";
 		}
 
 		// wwith buildingrenttype
-		if (rentTypes != null && !rentTypes.isEmpty()) {
+		if (requestDTO.getTypeCode() != null && !requestDTO.getTypeCode().isEmpty()) {
 			sql += " INNER JOIN buildingrenttype brt ON brt.buildingid = b.id ";
 			sql += " INNER JOIN renttype rt ON brt.renttypeid = rt.id ";
 		}
@@ -63,73 +57,71 @@ public class BuildingRepositoryImpl implements BuildingRepository {
 		sql += " WHERE 1=1 ";
 
 		// 1
-		if (name != null && !name.trim().isEmpty()) {
-			sql += " AND b.name LIKE '%" + name + "%' ";
+		if (requestDTO.getName() != null && !requestDTO.getName().isEmpty()) {
+			sql += " AND b.name LIKE '%" + requestDTO.getName() + "%' ";
 		}
 		// 2
-		if (floorArea != null) {
-			sql += " AND b.floorarea = " + floorArea;
+		if (requestDTO.getFloorArea() != null) {
+			sql += " AND b.floorarea = " + requestDTO.getFloorArea();
 		}
 		// 3
-		if (districtId != null) {
-			sql += " AND b.districtid = " + districtId;
+		if (requestDTO.getDistrictId() != null) {
+			sql += " AND b.districtid = " + requestDTO.getDistrictId();
 		}
 		// 4
-		if (ward != null && !ward.isEmpty()) {
-			sql += " AND b.ward LIKE '%" + ward + "%'";
+		if (requestDTO.getWard() != null && !requestDTO.getWard().isEmpty()) {
+			sql += " AND b.ward LIKE '%" + requestDTO.getWard() + "%'";
 		}
 		// 5
-		if (street != null && !street.isEmpty()) {
-			sql += " AND b.street LIKE '%" + street + "%'";
+		if (requestDTO.getStreet() != null && !requestDTO.getStreet().isEmpty()) {
+			sql += " AND b.street LIKE '%" + requestDTO.getStreet() + "%'";
 		}
 		// 6
-		if (numberOfBasement != null) {
-			sql += " AND b.numberofbasement = " + numberOfBasement;
+		if (requestDTO.getNumberOfBasement() != null) {
+			sql += " AND b.numberofbasement = " + requestDTO.getNumberOfBasement();
 		}
 		// 7
-		if (direction != null && !direction.isEmpty()) {
-			sql += " AND b.direction LIKE '%" + direction + "%'";
+		if (requestDTO.getDirection() != null && !requestDTO.getDirection().isEmpty()) {
+			sql += " AND b.direction LIKE '%" + requestDTO.getDirection() + "%'";
 		}
 		// 8
-		if (level != null && !level.isEmpty()) {
-			sql += " AND b.level LIKE '%" + level + "%'";
+		if (requestDTO.getLevel() != null && !requestDTO.getLevel().isEmpty()) {
+			sql += " AND b.level LIKE '%" + requestDTO.getLevel() + "%'";
 		}
 		// 9
-		if (areaFrom != null) {
-			sql += " AND r.value >= " + areaFrom;
+		if (requestDTO.getAreaFrom() != null) {
+			sql += " AND r.value >= " + requestDTO.getAreaFrom();
 		}
 		// 10
-		if (areaTo != null) {
-			sql += " AND r.value <= " + areaTo;
+		if (requestDTO.getAreaTo() != null) {
+			sql += " AND r.value <= " + requestDTO.getAreaTo();
 		}
 		// 11
-		if (rentPriceFrom != null) {
-			sql += " AND b.rentprice >= " + rentPriceFrom;
+		if (requestDTO.getRentPriceFrom() != null) {
+			sql += " AND b.rentprice >= " + requestDTO.getRentPriceFrom();
 		}
 		// 12
-		if (rentPriceTo != null) {
-			sql += " AND b.rentprice <= " + rentPriceTo;
+		if (requestDTO.getRentPriceTo() != null) {
+			sql += " AND b.rentprice <= " + requestDTO.getRentPriceTo();
 		}
 		// 13
-		if (managerName != null && !managerName.isEmpty()) {
-			sql += " AND b.managername LIKE '%" + managerName + "%'";
+		if (requestDTO.getManagerName() != null && !requestDTO.getManagerName().isEmpty()) {
+			sql += " AND b.managername LIKE '%" + requestDTO.getManagerName() + "%'";
 		}
 		// 14
-		if (managerPhoneNumber != null && !managerPhoneNumber.isEmpty()) {
-			sql += " AND b.managerphonenumber LIKE '%" + managerPhoneNumber + "%'";
+		if (requestDTO.getManagerPhoneNumber() != null && !requestDTO.getManagerPhoneNumber().isEmpty()) {
+			sql += " AND b.managerphonenumber LIKE '%" + requestDTO.getManagerPhoneNumber() + "%'";
 		}
 		// 15
-		if (staffId != null) {
-			sql += " AND ab.staffid = " + staffId;
+		if (requestDTO.getStaffId() != null) {
+			sql += " AND ab.staffid = " + requestDTO.getStaffId();
 		}
 		// 16
-		if (rentTypes != null && !rentTypes.isEmpty()) {
-			sql += " AND rt.code IN ('" + String.join("','", rentTypes) + "')";
+		if (requestDTO.getTypeCode() != null && !requestDTO.getTypeCode().isEmpty()) {
+			sql += " AND rt.code IN ('" + String.join("','", requestDTO.getTypeCode()) + "')";
 		}
 		return sql.toString();
 	}
-
-
 
 	private List<BuildingEntity> executeQuery(String sql) {
 		List<BuildingEntity> buildingEntities = new ArrayList<>();

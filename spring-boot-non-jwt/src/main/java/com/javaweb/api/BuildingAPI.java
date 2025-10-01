@@ -19,29 +19,14 @@ import com.javaweb.service.BuildingService;
 
 public class BuildingAPI {
 
+	private static final BuildingRequestDTO BuildingRequestDTO = null;
 	@Autowired
 	private BuildingService buildingService;
 	// @GetMapping()
-	// public List<BuildingResponseDTO> searchBuilding(@RequestBody BuildingRequestDTO requestDTO) {
-	// 	return buildingService.searchBuildings(requestDTO);
-	// }
-//	{
-//		  "name": "River View Tower",
-//		  "floorArea": 1200,
-//		  "districtId": 2,
-//		  "ward": "Phường An Lạc",
-//		  "street": "456 Võ Văn Kiệt",
-//		  "numberOfBasement": 1,
-//		  "direction": "Tây Bắc",
-//		  "level": "15 tầng",
-//		  "areaFrom": 50,
-//		  "areaTo": 200,
-//		  "rentPriceFrom": 5,
-//		  "rentPriceTo": 30,
-//		  "managerName": "Anh Hải",
-//		  "managerPhoneNumber": "0912345678",
-//		  "staffId": 4,
-//		  "typeCode": ["noi-that"]
+	// public List<BuildingResponseDTO> searchBuilding(@RequestBody
+	// BuildingRequestDTO requestDTO) {
+	// return buildingService.searchBuildings(requestDTO);
+
 //		}
 	@GetMapping()
 	public Object searchBuilding(@RequestParam(name = "name", required = false) String name,
@@ -59,13 +44,28 @@ public class BuildingAPI {
 			@RequestParam(name = "managerName", required = false) String managerName,
 			@RequestParam(name = "managerPhoneNumber", required = false) String managerPhoneNumber,
 			@RequestParam(name = "staffId", required = false) Long staffId,
-			@RequestParam(name = "rentTypes", required = false) List<String> rentTypes) {
-		List<BuildingResponseDTO> buildingResponseDTOs = buildingService.searchBuildings(name, floorArea, districtId,
-				ward, street, numberOfBasement, direction, level, areaFrom, areaTo, rentPriceFrom, rentPriceTo,
-				managerName, managerPhoneNumber, staffId, rentTypes);
-		System.out.println("successs");
+			@RequestParam(name = "typeCode", required = false) List<String> typeCode) {
+
+		BuildingRequestDTO requestDTO = new BuildingRequestDTO();
+		requestDTO.setName(name);
+		requestDTO.setFloorArea(floorArea);
+		requestDTO.setDistrictId(districtId);
+		requestDTO.setWard(ward);
+		requestDTO.setStreet(street);
+		requestDTO.setNumberOfBasement(numberOfBasement);
+		requestDTO.setDirection(direction);
+		requestDTO.setLevel(level);
+		requestDTO.setAreaFrom(areaFrom);
+		requestDTO.setAreaTo(areaTo);
+		requestDTO.setRentPriceFrom(rentPriceFrom);
+		requestDTO.setRentPriceTo(rentPriceTo);
+		requestDTO.setManagerName(managerName);
+		requestDTO.setManagerPhoneNumber(managerPhoneNumber);
+		requestDTO.setStaffId(staffId);
+		requestDTO.setTypeCode(typeCode);
+
+		List<BuildingResponseDTO> buildingResponseDTOs = buildingService.searchBuildings(requestDTO);
 		return buildingResponseDTOs;
 	}
 
-	
 }

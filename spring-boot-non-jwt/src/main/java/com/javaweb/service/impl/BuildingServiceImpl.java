@@ -6,16 +6,20 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.javaweb.model.DTO.BuildingRequestDTO;
 import com.javaweb.model.DTO.BuildingResponseDTO;
 import com.javaweb.repository.BuildingRepository;
 import com.javaweb.repository.DistrictRepository;
 import com.javaweb.repository.RentAreaRepository;
 import com.javaweb.repository.entity.BuildingEntity;
 import com.javaweb.repository.entity.DistrictEntity;
+import com.javaweb.repository.entity.RentAreaEntity;
 import com.javaweb.service.BuildingService;
 
 @Service
 public class BuildingServiceImpl implements BuildingService {
+
+	private static final BuildingRequestDTO BuildingRequestDTO = null;
 
 	@Autowired
 	private BuildingRepository buildingRepository;
@@ -27,15 +31,9 @@ public class BuildingServiceImpl implements BuildingService {
 	private RentAreaRepository rentAreaRepository;
 
 	@Override
-	public List<BuildingResponseDTO> searchBuildings(String name, Long floorArea, Long districtId, String ward,
-			String street, Long numberOfBasement, String direction, String level, Long areaFrom, Long areaTo,
-			Long rentPriceFrom, Long rentPriceTo, String managerName, String managerPhoneNumber, Long staffId,
-			List<String> rentTypes) {
-
-		// Lấy danh sách BuildingEntity từ repository
-		List<BuildingEntity> buildingEntities = buildingRepository.searchBuildings(name, floorArea, districtId, ward,
-				street, numberOfBasement, direction, level, areaFrom, areaTo, rentPriceFrom, rentPriceTo, managerName,
-				managerPhoneNumber, staffId, rentTypes);
+	public List<BuildingResponseDTO> searchBuildings(BuildingRequestDTO requestDTO) {
+		
+		List<BuildingEntity> buildingEntities = buildingRepository.searchBuildings(requestDTO);
 
 		List<BuildingResponseDTO> buildingResponseDTOs = new ArrayList<>();
 
@@ -63,12 +61,17 @@ public class BuildingServiceImpl implements BuildingService {
 			buildingResponseDTO.setFloorArea(entity.getFloorArea());
 
 			// 8 list rent area
-			List<Long> rentAreas = rentAreaRepository.findByBuildingId(entity.getId());
+			List<RentAreaEntity> rentAreaEntities = rentAreaRepository.findByBuildingId(entity.getId());
+			List<Long> rentAreas = new ArrayList<>();
+			long i=0;
+			for (RentAreaEntity it : rentAreaEntities) {
+				i++;
+			    rentAreas.add(it.getValue());
+			}
 			buildingResponseDTO.setRentArea(rentAreas);
 
 			// 9 emty area
-			Long emptyArea = rentAreaRepository.getTotalEmptyAreaByBuildingId(entity.getId());
-			buildingResponseDTO.setEmptyArea(emptyArea);
+			buildingResponseDTO.setEmptyArea(i);
 
 			// 10 rent price
 			buildingResponseDTO.setRentPrice(entity.getRentPrice());
@@ -76,10 +79,9 @@ public class BuildingServiceImpl implements BuildingService {
 			// 11 service fee
 			buildingResponseDTO.setServiceFee(entity.getServiceFee());
 
-			// brokerage fee
+			// 12 brokerage fee
 			buildingResponseDTO.setBrokerageFee(entity.getBrokerageFee());
 
-			
 
 			buildingResponseDTOs.add(buildingResponseDTO);
 		}

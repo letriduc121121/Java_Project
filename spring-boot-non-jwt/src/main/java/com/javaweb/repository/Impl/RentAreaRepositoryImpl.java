@@ -11,6 +11,7 @@ import java.util.List;
 import org.springframework.stereotype.Repository;
 
 import com.javaweb.repository.RentAreaRepository;
+import com.javaweb.repository.entity.RentAreaEntity;
 
 @Repository
 public class RentAreaRepositoryImpl implements RentAreaRepository {
@@ -20,55 +21,46 @@ public class RentAreaRepositoryImpl implements RentAreaRepository {
 	static final String PASS = "123456";
 
 	@Override
-	public List<Long> findByBuildingId(Long buildingId) {
-		String sql = "SELECT value FROM rentarea WHERE 1=1";
+	public List<RentAreaEntity> findByBuildingId(Long buildingId) {
+		// func1
+		String sql = buildQuery(buildingId);
 
-		if (buildingId != null) {
-			sql += " AND buildingid = " + buildingId;
-		}
+		// func2
+		List<RentAreaEntity> rentAreaEntities = executeQuery(sql);
 
-		List<Long> values = new ArrayList<>();
+		return rentAreaEntities;
+	}
+
+	private String buildQuery(Long buildingId) {
+		String sql = "SELECT * FROM rentarea WHERE buildingid = " + buildingId;
+		return sql;
+	}
+
+	private List<RentAreaEntity> executeQuery(String sql) {
+		List<RentAreaEntity> rentAreaEntities = new ArrayList<>();
 
 		try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
 				Statement st = conn.createStatement();
 				ResultSet rs = st.executeQuery(sql)) {
 
 			while (rs.next()) {
-				Long value = rs.getLong("value");
-				values.add(value);
-			}
+				RentAreaEntity rentAreaEntity = new RentAreaEntity();
 
-		} catch (SQLException ex) {
+				rentAreaEntity.setId(rs.getLong("id"));
+				rentAreaEntity.setValue(rs.getLong("value"));
+				rentAreaEntity.setBuildingId(rs.getLong("buildingid"));
+				rentAreaEntity.setCreatedDate(rs.getDate("createddate"));
+				rentAreaEntity.setModifiedDate(rs.getDate("modifieddate"));
+				rentAreaEntity.setCreatedBy(rs.getString("createdby"));
+				rentAreaEntity.setModifiedBy(rs.getString("modifiedby"));
 
-			ex.printStackTrace();
-		}
-
-		return values;
-	}
-
-	@Override
-	public Long getTotalEmptyAreaByBuildingId(Long buildingId) {
-		String sql = "SELECT SUM(value) FROM rentarea WHERE 1=1";
-
-		if (buildingId != null) {
-			sql += " AND buildingid = " + buildingId;
-		}
-
-		Long total = null ;
-
-		try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
-				Statement st = conn.createStatement();
-				ResultSet rs = st.executeQuery(sql)) {
-
-			if (rs.next()) {
-				total = rs.getLong(1);  
+				rentAreaEntities.add(rentAreaEntity);
 			}
 
 		} catch (SQLException ex) {
 			ex.printStackTrace();
 		}
 
-		return total;
+		return rentAreaEntities;
 	}
-	
 }

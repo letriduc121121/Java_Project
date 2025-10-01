@@ -20,23 +20,35 @@ public class DistrictRepositoryImpl implements DistrictRepository {
 	static final String USER = "root";
 	static final String PASS = "123456";
 
-
 	@Override
-	public DistrictEntity findDistrictById(Long buildingId) {
-		String sql = "SELECT * FROM district WHERE id = " + buildingId;
+	public DistrictEntity findDistrictById(Long districtId) {
+		// func1
+		String sql = buildQuery(districtId);
+
+		// func2
+		DistrictEntity entity = executeQuery(sql);
+
+		return entity;
+	}
+
+	private String buildQuery(Long districtId) {
+		return "SELECT * FROM district WHERE id = " + districtId;
+	}
+
+	private DistrictEntity executeQuery(String sql) {
 		DistrictEntity districtEntity = null;
-		
+
 		try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
 				Statement st = conn.createStatement();
 				ResultSet rs = st.executeQuery(sql)) {
-			
+
 			if (rs.next()) {
 				districtEntity = new DistrictEntity();
 				districtEntity.setId(rs.getLong("id"));
 				districtEntity.setCode(rs.getString("code"));
 				districtEntity.setName(rs.getString("name"));
 			}
-			
+
 		} catch (SQLException ex) {
 			ex.printStackTrace();
 		}
