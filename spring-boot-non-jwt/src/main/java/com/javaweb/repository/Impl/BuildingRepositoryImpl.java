@@ -24,38 +24,36 @@ public class BuildingRepositoryImpl implements BuildingRepository {
 
 	@Override
 	public List<BuildingEntity> searchBuildings(BuildingRequestDTO requestDTO) {
+		String sql = "SELECT b.* FROM building b ";
 
-		// func1
-		String sql = buildQuery(requestDTO);
-//		System.out.println(sql);
-		// func2
-		List<BuildingEntity> buildingEntities = executeQuery(sql);
+		// func join
+		sql += buildJoin(requestDTO);
 
-		return buildingEntities;
+		sql += " WHERE 1=1 ";
+
+		// func where
+		sql += buildWhere(requestDTO);
+		List<BuildingEntity> buildingEntites = executeQuery(sql);
+		return buildingEntites;
 	}
 
-	private String buildQuery(BuildingRequestDTO requestDTO) {
-
-		String sql = "SELECT  b.* FROM building b ";
-
-		// wwith rentare
+	private String buildJoin(BuildingRequestDTO requestDTO) {
+		String sql = "";
 		if (requestDTO.getAreaFrom() != null || requestDTO.getAreaTo() != null) {
 			sql += " INNER JOIN rentarea r ON r.buildingid = b.id ";
 		}
-
-		// with assignmentbuilding
 		if (requestDTO.getStaffId() != null) {
 			sql += " INNER JOIN assignmentbuilding ab ON ab.buildingid = b.id ";
 		}
-
-		// wwith buildingrenttype
 		if (requestDTO.getTypeCode() != null && !requestDTO.getTypeCode().isEmpty()) {
 			sql += " INNER JOIN buildingrenttype brt ON brt.buildingid = b.id ";
 			sql += " INNER JOIN renttype rt ON brt.renttypeid = rt.id ";
 		}
+		return sql;
+	}
 
-		sql += " WHERE 1=1 ";
-
+	private String buildWhere(BuildingRequestDTO requestDTO) {
+		String sql = "";
 		// 1
 		if (requestDTO.getName() != null && !requestDTO.getName().isEmpty()) {
 			sql += " AND b.name LIKE '%" + requestDTO.getName() + "%' ";
@@ -92,7 +90,7 @@ public class BuildingRepositoryImpl implements BuildingRepository {
 		if (requestDTO.getAreaFrom() != null) {
 			sql += " AND r.value >= " + requestDTO.getAreaFrom();
 		}
-		// 10
+		// 20
 		if (requestDTO.getAreaTo() != null) {
 			sql += " AND r.value <= " + requestDTO.getAreaTo();
 		}
@@ -106,13 +104,11 @@ public class BuildingRepositoryImpl implements BuildingRepository {
 		}
 		// 13
 		if (requestDTO.getManagerName() != null && !requestDTO.getManagerName().isEmpty()) {
-			String name = requestDTO.getManagerName().trim();  
-		    sql += " AND b.managername LIKE '%" + name + "%' ";
+			sql += " AND b.managername LIKE '%" + requestDTO.getManagerName().trim() + "%' ";
 		}
 		// 14
 		if (requestDTO.getManagerPhoneNumber() != null && !requestDTO.getManagerPhoneNumber().isEmpty()) {
-			String phone = requestDTO.getManagerPhoneNumber().trim();
-		    sql += " AND b.managerphonenumber LIKE '%" + phone + "%' ";
+			sql += " AND b.managerphonenumber LIKE '%" + requestDTO.getManagerPhoneNumber().trim() + "%' ";
 		}
 		// 15
 		if (requestDTO.getStaffId() != null) {
@@ -122,7 +118,8 @@ public class BuildingRepositoryImpl implements BuildingRepository {
 		if (requestDTO.getTypeCode() != null && !requestDTO.getTypeCode().isEmpty()) {
 			sql += " AND rt.code IN ('" + String.join("','", requestDTO.getTypeCode()) + "')";
 		}
-		return sql.toString();
+
+		return sql;
 	}
 
 	private List<BuildingEntity> executeQuery(String sql) {
