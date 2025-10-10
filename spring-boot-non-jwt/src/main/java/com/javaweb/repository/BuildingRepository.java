@@ -1,15 +1,12 @@
 package com.javaweb.repository;
 
 import java.util.List;
-import com.javaweb.repository.entity.BuildingEntity;
+
 import com.javaweb.model.DTO.BuildingRequestDTO;
-import com.javaweb.model.DTO.BuildingResponseDTO;
+import com.javaweb.repository.entity.BuildingEntity;
 
 public interface BuildingRepository {
-//	List<BuildingEntity> searchBuildings(String name, Long floorArea, Long districtId, String ward, 
-//			String street, Long numberOfBasement, String direction, String level, Long areaFrom, 
-//			Long areaTo, Long rentPriceFrom, Long rentPriceTo, String managerName, 
-//			String managerPhoneNumber, Long staffId, List<String> rentTypes);
+
 	
 	List<BuildingEntity> searchBuildings(BuildingRequestDTO requestDTO);
 }

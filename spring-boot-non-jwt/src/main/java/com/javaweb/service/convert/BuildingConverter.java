@@ -31,7 +31,7 @@ public class BuildingConverter {
 		// 2. Name
 		dto.setName(entity.getName());
 
-		// 3. Address (street + ward + district name)
+		// 3. Address 
 		DistrictEntity districtEntity = districtRepository.findDistrictById(entity.getDistrictId());
 		String districtName = (districtEntity != null) ? districtEntity.getName() : "";
 		dto.setAddress(entity.getStreet() + ", " + entity.getWard() + ", " + districtName);
@@ -56,7 +56,7 @@ public class BuildingConverter {
 		}
 		dto.setRentArea(rentAreas);
 
-		// 9. Empty area (giả sử = số lượng ô thuê trống)
+		// 9. Empty area 
 		dto.setEmptyArea((long) rentAreaEntities.size());
 
 		// 10. Rent price
