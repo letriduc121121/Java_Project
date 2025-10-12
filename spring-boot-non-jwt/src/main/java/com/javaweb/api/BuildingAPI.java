@@ -1,11 +1,14 @@
 package com.javaweb.api;
 
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.javaweb.model.DTO.BuildingRequestDTO;
 import com.javaweb.service.BuildingService;
 
 @RestController
@@ -17,8 +20,10 @@ public class BuildingAPI {
 	private BuildingService buildingService;
 
 	@GetMapping()
-	public Object searchBuilding(BuildingRequestDTO requestDTO) {
-		Object responseDTO = buildingService.searchBuildings(requestDTO);
+	 public Object getBuilding(
+	            @RequestParam Map<String, String> requestParams,
+	            @RequestParam(name = "typeCode", required = false) List<String> typeCode) {
+		Object responseDTO = buildingService.searchBuildings(requestParams,typeCode);
 		return responseDTO;
 	}
 

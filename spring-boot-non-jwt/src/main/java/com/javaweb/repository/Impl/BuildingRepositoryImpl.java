@@ -10,9 +10,10 @@ import java.util.List;
 
 import org.springframework.stereotype.Repository;
 
-import com.javaweb.model.DTO.BuildingRequestDTO;
 import com.javaweb.repository.BuildingRepository;
 import com.javaweb.repository.entity.BuildingEntity;
+
+import java.util.Map;
 
 @Repository // bean String
 public class BuildingRepositoryImpl implements BuildingRepository {
@@ -23,100 +24,100 @@ public class BuildingRepositoryImpl implements BuildingRepository {
 	static final String PASS = "123456";
 
 	@Override
-	public List<BuildingEntity> searchBuildings(BuildingRequestDTO requestDTO) {
+	public List<BuildingEntity> searchBuildings(Map<String, String> requestParams, List<String> typeCode) {
 		String sql = "SELECT DISTINCT b.* FROM building b ";
 
 		// func join
-		sql += buildJoin(requestDTO);
+		sql += buildJoin(requestParams, typeCode);
 
 		sql += " WHERE 1=1 ";
 
 		// func where
-		sql += buildWhere(requestDTO);
+		sql += buildWhere(requestParams, typeCode);
 		List<BuildingEntity> buildingEntites = executeQuery(sql);
 		return buildingEntites;
 	}
 
-	private String buildJoin(BuildingRequestDTO requestDTO) {
+	private String buildJoin(Map<String, String> requestParams, List<String> typeCode) {
 		String sql = "";
-		if (requestDTO.getAreaFrom() != null || requestDTO.getAreaTo() != null) {
+		if (requestParams.get("areaFrom") != null || requestParams.get("areaTo") != null) {
 			sql += " INNER JOIN rentarea r ON r.buildingid = b.id ";
 		}
-		if (requestDTO.getStaffId() != null) {
+		if (requestParams.get("staffId") != null) {
 			sql += " INNER JOIN assignmentbuilding ab ON ab.buildingid = b.id ";
 		}
-		if (requestDTO.getTypeCode() != null && !requestDTO.getTypeCode().isEmpty()) {
+		if (typeCode != null && !typeCode.isEmpty()) {
 			sql += " INNER JOIN buildingrenttype brt ON brt.buildingid = b.id ";
 			sql += " INNER JOIN renttype rt ON brt.renttypeid = rt.id ";
 		}
 		return sql;
 	}
 
-	private String buildWhere(BuildingRequestDTO requestDTO) {
+	private String buildWhere(Map<String, String> requestParams, List<String> typeCode) {
 		String sql = "";
 		// 1
-		if (requestDTO.getName() != null && !requestDTO.getName().isEmpty()) {
-			sql += " AND b.name LIKE '%" + requestDTO.getName() + "%' ";
+		if (requestParams.get("name") != null && !requestParams.get("name").isEmpty()) {
+			sql += " AND b.name LIKE '%" + requestParams.get("name") + "%' ";
 		}
 		// 2
-		if (requestDTO.getFloorArea() != null) {
-			sql += " AND b.floorarea = " + requestDTO.getFloorArea();
+		if (requestParams.get("floorArea") != null) {
+			sql += " AND b.floorarea = " + requestParams.get("floorArea");
 		}
 		// 3
-		if (requestDTO.getDistrictId() != null) {
-			sql += " AND b.districtid = " + requestDTO.getDistrictId();
+		if (requestParams.get("districtId") != null) {
+			sql += " AND b.districtid = " + requestParams.get("districtId");
 		}
 		// 4
-		if (requestDTO.getWard() != null && !requestDTO.getWard().isEmpty()) {
-			sql += " AND b.ward LIKE '%" + requestDTO.getWard() + "%'";
+		if (requestParams.get("ward") != null && !requestParams.get("ward").isEmpty()) {
+			sql += " AND b.ward LIKE '%" + requestParams.get("ward") + "%'";
 		}
 		// 5
-		if (requestDTO.getStreet() != null && !requestDTO.getStreet().isEmpty()) {
-			sql += " AND b.street LIKE '%" + requestDTO.getStreet() + "%'";
+		if (requestParams.get("street") != null && !requestParams.get("street").isEmpty()) {
+			sql += " AND b.street LIKE '%" + requestParams.get("street") + "%'";
 		}
 		// 6
-		if (requestDTO.getNumberOfBasement() != null) {
-			sql += " AND b.numberofbasement = " + requestDTO.getNumberOfBasement();
+		if (requestParams.get("numberOfBasement") != null) {
+			sql += " AND b.numberofbasement = " + requestParams.get("numberOfBasement");
 		}
 		// 7
-		if (requestDTO.getDirection() != null && !requestDTO.getDirection().isEmpty()) {
-			sql += " AND b.direction LIKE '%" + requestDTO.getDirection() + "%'";
+		if (requestParams.get("direction") != null && !requestParams.get("direction").isEmpty()) {
+			sql += " AND b.direction LIKE '%" + requestParams.get("direction") + "%'";
 		}
 		// 8
-		if (requestDTO.getLevel() != null && !requestDTO.getLevel().isEmpty()) {
-			sql += " AND b.level LIKE '%" + requestDTO.getLevel() + "%'";
+		if (requestParams.get("level") != null && !requestParams.get("level").isEmpty()) {
+			sql += " AND b.level LIKE '%" + requestParams.get("level") + "%'";
 		}
 		// 9
-		if (requestDTO.getAreaFrom() != null) {
-			sql += " AND r.value >= " + requestDTO.getAreaFrom();
+		if (requestParams.get("areaFrom") != null) {
+			sql += " AND r.value >= " + requestParams.get("areaFrom");
 		}
-		// 20
-		if (requestDTO.getAreaTo() != null) {
-			sql += " AND r.value <= " + requestDTO.getAreaTo();
+		// 10
+		if (requestParams.get("areaTo") != null) {
+			sql += " AND r.value <= " + requestParams.get("areaTo");
 		}
 		// 11
-		if (requestDTO.getRentPriceFrom() != null) {
-			sql += " AND b.rentprice >= " + requestDTO.getRentPriceFrom();
+		if (requestParams.get("rentPriceFrom") != null) {
+			sql += " AND b.rentprice >= " + requestParams.get("rentPriceFrom");
 		}
 		// 12
-		if (requestDTO.getRentPriceTo() != null) {
-			sql += " AND b.rentprice <= " + requestDTO.getRentPriceTo();
+		if (requestParams.get("rentPriceTo") != null) {
+			sql += " AND b.rentprice <= " + requestParams.get("rentPriceTo");
 		}
 		// 13
-		if (requestDTO.getManagerName() != null && !requestDTO.getManagerName().isEmpty()) {
-			sql += " AND b.managername LIKE '%" + requestDTO.getManagerName().trim() + "%' ";
+		if (requestParams.get("managerName") != null && !requestParams.get("managerName").isEmpty()) {
+			sql += " AND b.managername LIKE '%" + requestParams.get("managerName").trim() + "%' ";
 		}
 		// 14
-		if (requestDTO.getManagerPhoneNumber() != null && !requestDTO.getManagerPhoneNumber().isEmpty()) {
-			sql += " AND b.managerphonenumber LIKE '%" + requestDTO.getManagerPhoneNumber().trim() + "%' ";
+		if (requestParams.get("managerPhoneNumber") != null && !requestParams.get("managerPhoneNumber").isEmpty()) {
+			sql += " AND b.managerphonenumber LIKE '%" + requestParams.get("managerPhoneNumber").trim() + "%' ";
 		}
 		// 15
-		if (requestDTO.getStaffId() != null) {
-			sql += " AND ab.staffid = " + requestDTO.getStaffId();
+		if (requestParams.get("staffId") != null) {
+			sql += " AND ab.staffid = " + requestParams.get("staffId");
 		}
 		// 16
-		if (requestDTO.getTypeCode() != null && !requestDTO.getTypeCode().isEmpty()) {
-			sql += " AND rt.code IN ('" + String.join("','", requestDTO.getTypeCode()) + "')";
+		if (typeCode != null && !typeCode.isEmpty()) {
+			sql += " AND rt.code IN ('" + String.join("','", typeCode) + "')";
 		}
 
 		return sql;
