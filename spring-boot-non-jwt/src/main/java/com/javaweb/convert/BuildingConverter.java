@@ -1,7 +1,7 @@
-package com.javaweb.service.convert;
+package com.javaweb.convert;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -31,7 +31,7 @@ public class BuildingConverter {
 		// 2. Name
 		dto.setName(entity.getName());
 
-		// 3. Address (street + ward + district name)
+		// 3. Address 
 		DistrictEntity districtEntity = districtRepository.findDistrictById(entity.getDistrictId());
 		String districtName = (districtEntity != null) ? districtEntity.getName() : "";
 		dto.setAddress(entity.getStreet() + ", " + entity.getWard() + ", " + districtName);
@@ -48,16 +48,16 @@ public class BuildingConverter {
 		// 7. Floor area
 		dto.setFloorArea(entity.getFloorArea());
 
-		// 8. List rent area
-		List<RentAreaEntity> rentAreaEntities = rentAreaRepository.findByBuildingId(entity.getId());
-		List<Long> rentAreas = new ArrayList<>();
-		for (RentAreaEntity rentArea : rentAreaEntities) {
-			rentAreas.add(rentArea.getValue());
-		}
+	
+		List<Long> rentAreas = rentAreaRepository.findByBuildingId(entity.getId())
+		        .stream()
+		        .map(RentAreaEntity::getValue) 
+		        .collect(Collectors.toList());
+
 		dto.setRentArea(rentAreas);
 
-		// 9. Empty area (giả sử = số lượng ô thuê trống)
-		dto.setEmptyArea((long) rentAreaEntities.size());
+		// 9. Empty area 
+		dto.setEmptyArea((long) rentAreas.size());
 
 		// 10. Rent price
 		dto.setRentPrice(entity.getRentPrice());

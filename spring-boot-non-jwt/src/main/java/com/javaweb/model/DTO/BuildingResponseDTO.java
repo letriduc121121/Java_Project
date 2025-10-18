@@ -4,18 +4,18 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public class BuildingResponseDTO {
-	private Long id;//id
-	private String name;//ten toa
-	private String address;//dia cjhi
-	private Long numberOfBasement;// so tang ham
-	private String managerName;// ten quan ly
-	private String managerPhoneNumber;//sdt quan ly
-	private Long floorArea;// dien tich san
-	private List<Long>rentArea;//gia dien tich thue
-	private Long emptyArea;//dien tich trong
-	private Long rentPrice;//gia thue
-	private String serviceFee;//phi thue
-	private Long brokerageFee;//phi moi gioi
+	private Long id;
+	private String name;
+	private String address;
+	private Long numberOfBasement;
+	private String managerName;
+	private String managerPhoneNumber;
+	private Long floorArea;
+	private List<Long>rentArea;
+	private Long emptyArea;
+	private Long rentPrice;
+	private String serviceFee;
+	private Long brokerageFee;
 	public Long getId() {
 		return id;
 	}
