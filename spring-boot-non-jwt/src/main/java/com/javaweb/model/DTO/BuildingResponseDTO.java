@@ -3,6 +3,8 @@ package com.javaweb.model.DTO;
 import java.math.BigDecimal;
 import java.util.List;
 
+import com.javaweb.repository.entity.RentAreaEntity;
+
 public class BuildingResponseDTO {
 	private Long id;
 	private String name;
@@ -11,7 +13,7 @@ public class BuildingResponseDTO {
 	private String managerName;
 	private String managerPhoneNumber;
 	private Long floorArea;
-	private List<Long>rentArea;
+	private List<Long> rentArea;
 	private Long emptyArea;
 	private Long rentPrice;
 	private String serviceFee;

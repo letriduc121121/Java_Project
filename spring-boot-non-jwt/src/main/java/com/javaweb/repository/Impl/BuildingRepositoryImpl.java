@@ -7,6 +7,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Repository;
 
@@ -27,10 +28,8 @@ public class BuildingRepositoryImpl implements BuildingRepository {
 
 	@Override
 	public List<BuildingEntity> searchBuildings(Map<String, String> requestParams, List<String> typeCode) {
-	    // Dùng StringBuilder để nối chuỗi SQL an toàn và tránh lỗi append
-	    StringBuilder sql = new StringBuilder("SELECT DISTINCT b.* FROM building b");
+	    StringBuilder sql = new StringBuilder("SELECT  b.* FROM building b");
 
-	    
 	    buildJoin(requestParams, typeCode, sql);
 
 	   
@@ -48,71 +47,75 @@ public class BuildingRepositoryImpl implements BuildingRepository {
 
 	
 	
-	private void buildJoin(Map<String, String> requestParams, List<String> typeCode,StringBuilder join) {
-		if(typeCode!=null && !typeCode.isEmpty()) {
-			join.append(" INNER JOIN buildingrenttype brt ON brt.buildingid = b.id");
-			join.append( " INNER JOIN renttype rt ON brt.renttypeid = rt.id ");
-		}
-		String staffId=requestParams.get("staffId");
-		if (staffId!= null) {
-			join.append(" INNER JOIN assignmentbuilding as ON as.buildingid = b.id ");
-		}
-		String rentAreaFrom=requestParams.get("areaFrom");
-		String rentAreaTo=requestParams.get("areaTo");
-		if (StringUtil.check(rentAreaTo) && StringUtil.check(rentAreaFrom)) {
-			join.append(" INNER JOIN rentarea ra ON ra.buildingid = b.id ");
-		}	
-		
+	private void buildJoin(Map<String, String> requestParams, List<String> typeCode, StringBuilder join) {
+	    if(typeCode != null && !typeCode.isEmpty()) {
+	        join.append(" INNER JOIN buildingrenttype  ON buildingrenttype.buildingid = b.id");
+	        join.append(" INNER JOIN renttype rt ON buildingrenttype.renttypeid = rt.id");
+	    }
+	    
+	    String staffId = requestParams.get("staffId");
+	    if (StringUtil.check(staffId)) {
+	        join.append(" INNER JOIN assignmentbuilding ab ON ab.buildingid = b.id");
+	    }
+	    
+	    String rentAreaFrom = requestParams.get("rentAreaFrom");
+	    String rentAreaTo = requestParams.get("rentAreaTo");
+	    if (StringUtil.check(rentAreaFrom) || StringUtil.check(rentAreaTo)) {
+	        join.append(" INNER JOIN rentarea ra ON ra.buildingid = b.id");
+	    }
 	}
-	private void buildWhere(Map<String, String> requestParams, List<String> typeCode,StringBuilder where) {
-		for(Map.Entry<String, String> item:requestParams.entrySet()) {
-			if(!item.getKey().equals("staffId") && item.getKey().equals("typeCode") && !item.getKey().startsWith("rentArea") &&!item.getKey().startsWith("rentPrice")) {
-				String value=item.getValue();
-				if(NumberFormatUtil.isLong(value)|| NumberFormatUtil.isFloat(value)) {
-					where.append(" AND b. "+item.getKey().toLowerCase() +" = "+value );
-				}
-				else {
-					where.append(" AND b." +item.getKey().toLowerCase()+ " Like '%"+ value+"%'");
-				}
-			}
-		}
-		//special
-		String staffId=requestParams.get("staffId");
-		if(StringUtil.check(staffId)) {
-			where.append(" AND as.staffid = "+ staffId);
-		}
-		
-		//price
-		String rentPriceFrom=requestParams.get("rentPriceFrom");
-		String rentPriceTo=requestParams.get("rentPriceTo");
-		if(StringUtil.check(rentPriceFrom)) {
-			where.append(" AND b.rentprice >= " +rentPriceFrom);
-		}
-		if(StringUtil.check(rentPriceTo)) {
-			where.append(" AND b.rentprice <= " +rentPriceTo);
-		}
-		//area
-		String areaFrom=requestParams.get("areaFrom");
-		String areaTo=requestParams.get("areaTo");
-		if(StringUtil.check(areaFrom)) {
-			where.append(" AND ra.value >="+ areaFrom);
-		}
-		if(StringUtil.check(areaTo)) {
-			where.append(" AND ra.value >="+ areaTo);
-		}
-		//type code java7
-//		if(typeCode !=null && !typeCode.isEmpty()) {
-//			List<String> type=new ArrayList<String>();
-//			for(String it: typeCode) {
-//				type.add("'"+it+"'");
-//			}
-//			where.append(" AND rt.code in (" +String.join(",", type)+")");// in('tang-triet','abc');
-//			
-//		}
-		//java 8: stream
-		
-		
-		
+
+	private void buildWhere(Map<String, String> requestParams, List<String> typeCode, StringBuilder where) {
+	    for(Map.Entry<String, String> item : requestParams.entrySet()) {
+	        if(!item.getKey().equals("staffId") 
+	           && !item.getKey().equals("typeCode") 
+	           && !item.getKey().startsWith("rentArea") 
+	           && !item.getKey().startsWith("rentPrice")) {
+	            
+	            String value = item.getValue();
+	            if(StringUtil.check(value)) {
+	                if(NumberFormatUtil.isLong(value) || NumberFormatUtil.isFloat(value)) {
+	                    where.append(" AND b.").append(item.getKey().toLowerCase()).append(" = ").append(value);
+	                } else {
+	                    where.append(" AND b.").append(item.getKey().toLowerCase()).append(" LIKE '%").append(value).append("%'");
+	                }
+	            }
+	        }
+	    }
+
+	    String staffId = requestParams.get("staffId");
+	    if(StringUtil.check(staffId)) {
+	        where.append(" AND ab.staffid = ").append(staffId);
+	    }
+	    // rentArea
+	    String rentAreaFrom = requestParams.get("rentAreaFrom");
+	    String rentAreaTo = requestParams.get("rentAreaTo");
+	    if(StringUtil.check(rentAreaFrom)) {
+	        where.append(" AND ra.value >= ").append(rentAreaFrom);
+	    }
+	    if(StringUtil.check(rentAreaTo)) {
+	        where.append(" AND ra.value <= ").append(rentAreaTo);
+	    }
+	    // rentPrice
+	    String rentPriceFrom = requestParams.get("rentPriceFrom");
+	    String rentPriceTo = requestParams.get("rentPriceTo");
+	    if(StringUtil.check(rentPriceFrom)) {
+	        where.append(" AND b.rentprice >= ").append(rentPriceFrom);
+	    }
+	    if(StringUtil.check(rentPriceTo)) {
+	        where.append(" AND b.rentprice <= ").append(rentPriceTo);
+	    }
+	    
+	
+	    
+	    // typeCode
+	    if(typeCode != null && !typeCode.isEmpty()) {
+	        List<String> codes = new ArrayList<>();
+	        for(String code : typeCode) {
+	            codes.add("'" + code + "'");
+	        }
+	        where.append(" AND rt.code IN (").append(String.join(",", codes)).append(")");
+	    }
 	}
 
 	 private List<BuildingEntity> executeQuery(String sql) {
