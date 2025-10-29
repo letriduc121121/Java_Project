@@ -1,9 +1,6 @@
 package com.javaweb.model.DTO;
 
-import java.math.BigDecimal;
 import java.util.List;
-
-import com.javaweb.repository.entity.RentAreaEntity;
 
 public class BuildingResponseDTO {
 	private Long id;
@@ -91,6 +88,27 @@ public class BuildingResponseDTO {
 	public void setBrokerageFee(Long brokerageFee) {
 		this.brokerageFee = brokerageFee;
 	}
-
+	public BuildingResponseDTO(Long id, String name, String address, Long numberOfBasement, String managerName,
+			String managerPhoneNumber, Long floorArea, List<Long> rentArea, Long emptyArea, Long rentPrice,
+			String serviceFee, Long brokerageFee) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.address = address;
+		this.numberOfBasement = numberOfBasement;
+		this.managerName = managerName;
+		this.managerPhoneNumber = managerPhoneNumber;
+		this.floorArea = floorArea;
+		this.rentArea = rentArea;
+		this.emptyArea = emptyArea;
+		this.rentPrice = rentPrice;
+		this.serviceFee = serviceFee;
+		this.brokerageFee = brokerageFee;
+	}
+	public BuildingResponseDTO() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+	
 
 }

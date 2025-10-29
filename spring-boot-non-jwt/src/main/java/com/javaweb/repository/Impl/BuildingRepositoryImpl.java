@@ -1,41 +1,34 @@
 package com.javaweb.repository.Impl;
 
+import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Repository;
 
+import com.javaweb.builder.BuildingSearchBuilder;
 import com.javaweb.repository.BuildingRepository;
 import com.javaweb.repository.entity.BuildingEntity;
 import com.javaweb.utils.ConnectionJDBCUtil;
-import com.javaweb.utils.NumberFormatUtil;
-import com.javaweb.utils.StringUtil;
 
 @Repository // bean String
 public class BuildingRepositoryImpl implements BuildingRepository {
 
-	// connect jdbc
-	static final String DB_URL = "jdbc:mysql://localhost:3306/estatebasic";
-	static final String USER = "root";
-	static final String PASS = "123456";
-
 
 	@Override
-	public List<BuildingEntity> searchBuildings(Map<String, String> requestParams, List<String> typeCode) {
+	public List<BuildingEntity> searchBuildings(BuildingSearchBuilder buildingSearchBuilder) {
 	    StringBuilder sql = new StringBuilder("SELECT  b.* FROM building b");
 
-	    buildJoin(requestParams, typeCode, sql);
+	    buildJoin(buildingSearchBuilder, sql);
 
 	   
 	    StringBuilder where=new StringBuilder(" where 1=1");
 
-	    buildWhere(requestParams, typeCode, where);
+	    buildWhere(buildingSearchBuilder, where);
 	    sql.append(where);
 	    sql.append(" GROUP BY b.id");
 	    
@@ -47,67 +40,75 @@ public class BuildingRepositoryImpl implements BuildingRepository {
 
 	
 	
-	private void buildJoin(Map<String, String> requestParams, List<String> typeCode, StringBuilder join) {
-	    if(typeCode != null && !typeCode.isEmpty()) {
+	private void buildJoin(BuildingSearchBuilder buildingSearchBuilder, StringBuilder join) {
+	    if(buildingSearchBuilder.getTypeCode() != null && !buildingSearchBuilder.getTypeCode().isEmpty()) {
 	        join.append(" INNER JOIN buildingrenttype  ON buildingrenttype.buildingid = b.id");
 	        join.append(" INNER JOIN renttype rt ON buildingrenttype.renttypeid = rt.id");
 	    }
 	    
-	    String staffId = requestParams.get("staffId");
-	    if (StringUtil.check(staffId)) {
+	    Long staffId =buildingSearchBuilder.getStaffId();
+	    if (staffId!=null) {
 	        join.append(" INNER JOIN assignmentbuilding ab ON ab.buildingid = b.id");
 	    }
 	    
-	    String rentAreaFrom = requestParams.get("rentAreaFrom");
-	    String rentAreaTo = requestParams.get("rentAreaTo");
-	    if (StringUtil.check(rentAreaFrom) || StringUtil.check(rentAreaTo)) {
+	    // Bug fixed: Uncomment và sửa logic để JOIN rentarea khi cần
+	    Long rentAreaFrom = buildingSearchBuilder.getRentAreaFrom();
+	    Long rentAreaTo = buildingSearchBuilder.getRentAreaTo();
+	    if (rentAreaFrom != null || rentAreaTo != null) {
 	        join.append(" INNER JOIN rentarea ra ON ra.buildingid = b.id");
 	    }
 	}
 
-	private void buildWhere(Map<String, String> requestParams, List<String> typeCode, StringBuilder where) {
-	    for(Map.Entry<String, String> item : requestParams.entrySet()) {
-	        if(!item.getKey().equals("staffId") 
-	           && !item.getKey().equals("typeCode") 
-	           && !item.getKey().startsWith("rentArea") 
-	           && !item.getKey().startsWith("rentPrice")) {
-	            
-	            String value = item.getValue();
-	            if(StringUtil.check(value)) {
-	                if(NumberFormatUtil.isLong(value) || NumberFormatUtil.isFloat(value)) {
-	                    where.append(" AND b.").append(item.getKey().toLowerCase()).append(" = ").append(value);
-	                } else {
-	                    where.append(" AND b.").append(item.getKey().toLowerCase()).append(" LIKE '%").append(value).append("%'");
-	                }
-	            }
-	        }
-	    }
-
-	    String staffId = requestParams.get("staffId");
-	    if(StringUtil.check(staffId)) {
+	private void buildWhere(BuildingSearchBuilder buildingSearchBuilder, StringBuilder where) {
+		try {
+			Field[] fields= BuildingSearchBuilder.class.getDeclaredFields();
+			//duye qua tung bien
+		for(Field field: fields) {
+			field.setAccessible(true); // Bug fixed: Đặt ở đầu để có thể truy cập private fields
+			String fieldName=field.getName();
+			
+			if(!fieldName.equals("staffId") && !fieldName.equals("typeCode") && !fieldName.startsWith("rentArea") && !fieldName.startsWith("rentPrice")) {
+				Object value=field.get(buildingSearchBuilder);// lay value cua 1 field trong doi tuong BuildingSearchBuilder
+					if(value !=null) {
+						if(field.getType().getName().equals("java.lang.Long") || field.getType().getName().equals("java.lang.Integer")) {
+							where.append(" AND b.").append(fieldName.toLowerCase()).append(" = ").append(value);
+						}
+						else {
+							where.append(" AND b.").append(fieldName.toLowerCase()).append(" LIKE '%").append(value).append("%'");
+						}
+					}
+				}
+			}
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+	    //special
+	    Long staffId = buildingSearchBuilder.getStaffId();
+	    if(staffId !=null) {
 	        where.append(" AND ab.staffid = ").append(staffId);
 	    }
-	    // rentArea
-	    String rentAreaFrom = requestParams.get("rentAreaFrom");
-	    String rentAreaTo = requestParams.get("rentAreaTo");
-	    if(StringUtil.check(rentAreaFrom)) {
+	    // rentArea 
+	    Long rentAreaFrom = buildingSearchBuilder.getRentAreaFrom();
+	    Long rentAreaTo = buildingSearchBuilder.getRentAreaTo();
+	    if(rentAreaFrom !=null) {
 	        where.append(" AND ra.value >= ").append(rentAreaFrom);
 	    }
-	    if(StringUtil.check(rentAreaTo)) {
+	    if(rentAreaTo!=null) {
 	        where.append(" AND ra.value <= ").append(rentAreaTo);
 	    }
-	    // rentPrice
-	    String rentPriceFrom = requestParams.get("rentPriceFrom");
-	    String rentPriceTo = requestParams.get("rentPriceTo");
-	    if(StringUtil.check(rentPriceFrom)) {
+	    // rentPrice 
+	    Long rentPriceFrom = buildingSearchBuilder.getRentPriceFrom();
+	    Long rentPriceTo = buildingSearchBuilder.getRentPriceTo();
+	    if(rentPriceFrom!=null) {
 	        where.append(" AND b.rentprice >= ").append(rentPriceFrom);
 	    }
-	    if(StringUtil.check(rentPriceTo)) {
+	    if(rentPriceTo !=null) {
 	        where.append(" AND b.rentprice <= ").append(rentPriceTo);
 	    }
 	    
 	
-	    
+	    List<String> typeCode=buildingSearchBuilder.getTypeCode();
 	    // typeCode
 	    if(typeCode != null && !typeCode.isEmpty()) {
 	        List<String> codes = new ArrayList<>();

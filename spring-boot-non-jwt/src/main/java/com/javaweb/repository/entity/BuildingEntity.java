@@ -238,4 +238,54 @@ public class BuildingEntity {
     public void setManagerPhoneNumber(String managerPhoneNumber) {
         this.managerPhoneNumber = managerPhoneNumber;
     }
+	public BuildingEntity() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+	public BuildingEntity(Long id, String name, String street, String ward, Long districtId, String structure,
+			Long numberOfBasement, Long floorArea, String direction, String level, Long rentPrice,
+			String rentPriceDescription, String serviceFee, String carFee, String motorbikeFee, String overtimeFee,
+			String waterFee, String electricityFee, String deposit, String payment, String rentTime,
+			String decorationTime, Long brokerageFee, String note, String linkOfBuilding, String map, String image,
+			Date createdDate, Date modifiedDate, String createdBy, String modifiedBy, String managerName,
+			String managerPhoneNumber) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.street = street;
+		this.ward = ward;
+		this.districtId = districtId;
+		this.structure = structure;
+		this.numberOfBasement = numberOfBasement;
+		this.floorArea = floorArea;
+		this.direction = direction;
+		this.level = level;
+		this.rentPrice = rentPrice;
+		this.rentPriceDescription = rentPriceDescription;
+		this.serviceFee = serviceFee;
+		this.carFee = carFee;
+		this.motorbikeFee = motorbikeFee;
+		this.overtimeFee = overtimeFee;
+		this.waterFee = waterFee;
+		this.electricityFee = electricityFee;
+		this.deposit = deposit;
+		this.payment = payment;
+		this.rentTime = rentTime;
+		this.decorationTime = decorationTime;
+		this.brokerageFee = brokerageFee;
+		this.note = note;
+		this.linkOfBuilding = linkOfBuilding;
+		this.map = map;
+		this.image = image;
+		this.createdDate = createdDate;
+		this.modifiedDate = modifiedDate;
+		this.createdBy = createdBy;
+		this.modifiedBy = modifiedBy;
+		this.managerName = managerName;
+		this.managerPhoneNumber = managerPhoneNumber;
+	}
+	
+    
+    
+    
 }

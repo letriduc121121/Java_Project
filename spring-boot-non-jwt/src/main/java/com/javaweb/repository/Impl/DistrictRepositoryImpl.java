@@ -15,9 +15,7 @@ import com.javaweb.utils.ConnectionJDBCUtil;
 @Repository
 public class DistrictRepositoryImpl implements DistrictRepository {
 
-	static final String DB_URL = "jdbc:mysql://localhost:3306/estatebasic";
-	static final String USER = "root";
-	static final String PASS = "123456";
+
 
 	@Override
 	public DistrictEntity findDistrictById(Long districtId) {

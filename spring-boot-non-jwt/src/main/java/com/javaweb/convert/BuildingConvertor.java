@@ -15,7 +15,7 @@ import com.javaweb.repository.entity.DistrictEntity;
 import com.javaweb.repository.entity.RentAreaEntity;
 
 @Component
-public class BuildingConverter {
+public class BuildingConvertor {
 
 	@Autowired
 	private DistrictRepository districtRepository;
@@ -58,16 +58,16 @@ public class BuildingConverter {
 		dto.setRentArea(rentAreas);
 
 		// 9. Empty area 
-//		dto.setEmptyArea((long) rentAreas.size());
-//
-//		// 10. Rent price
-//		dto.setRentPrice(entity.getRentPrice());
-//
-//		// 11. Service fee
-//		dto.setServiceFee(entity.getServiceFee());
-//
-//		// 12. Brokerage fee
-//		dto.setBrokerageFee(entity.getBrokerageFee());
+		dto.setEmptyArea((long) rentAreas.size());
+
+		// 10. Rent price
+		dto.setRentPrice(entity.getRentPrice());
+
+		// 11. Service fee
+		dto.setServiceFee(entity.getServiceFee());
+
+		// 12. Brokerage fee
+		dto.setBrokerageFee(entity.getBrokerageFee());
 
 		return dto;
 	}

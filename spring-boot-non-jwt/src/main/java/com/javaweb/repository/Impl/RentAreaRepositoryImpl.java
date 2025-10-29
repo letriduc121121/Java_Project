@@ -17,9 +17,6 @@ import com.javaweb.utils.ConnectionJDBCUtil;
 @Repository
 public class RentAreaRepositoryImpl implements RentAreaRepository {
 
-	static final String DB_URL = "jdbc:mysql://localhost:3306/estatebasic";
-	static final String USER = "root";
-	static final String PASS = "123456";
 
 	@Override
 	public List<RentAreaEntity> findRentAreaByBuildingId(Long buildingId) {
