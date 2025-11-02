@@ -1,5 +1,6 @@
 package com.javaweb.controlleradvice;
 
+import java.sql.SQLException;
 import java.util.Arrays;
 
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,13 @@ public class GlobalExceptionAdvice {
 		ErrorResponse errorResponse=new ErrorResponse();
 		errorResponse.setError(ex.getMessage());
 		errorResponse.setDetails(Arrays.asList("Số nguyên làm sao chia cho 0 được"));
+		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+	}
+	@ExceptionHandler(SQLException.class)
+	public ResponseEntity<ErrorResponse> handleSQLException(ArithmeticException ex){
+		ErrorResponse errorResponse=new ErrorResponse();
+		errorResponse.setError(ex.getMessage());
+//		errorResponse.setDetails(Arrays.asList("Số nguyên làm sao chia cho 0 được"));
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
 	}
 	@ExceptionHandler(InvalidBuildingException.class)

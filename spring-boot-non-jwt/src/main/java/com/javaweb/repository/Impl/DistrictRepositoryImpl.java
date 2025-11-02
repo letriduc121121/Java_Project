@@ -10,47 +10,34 @@ import org.springframework.stereotype.Repository;
 
 import com.javaweb.repository.DistrictRepository;
 import com.javaweb.repository.entity.DistrictEntity;
+import com.javaweb.utils.ConnectionJDBCUtil;
 
 @Repository
 public class DistrictRepositoryImpl implements DistrictRepository {
 
-	static final String DB_URL = "jdbc:mysql://localhost:3306/estatebasic";
-	static final String USER = "root";
-	static final String PASS = "123456";
+
 
 	@Override
 	public DistrictEntity findDistrictById(Long districtId) {
 		// func1
-		String sql = buildQuery(districtId);
-
-		// func2
-		DistrictEntity entity = executeQuery(sql);
-
-		return entity;
-	}
-
-	private String buildQuery(Long districtId) {
-		return "SELECT * FROM district WHERE id = " + districtId;
-	}
-
-	private DistrictEntity executeQuery(String sql) {
-		DistrictEntity districtEntity = null;
-
-		try (Connection conn = DriverManager.getConnection(DB_URL, USER, PASS);
+		String sql ="SELECT * FROM district WHERE id = " + districtId;
+		DistrictEntity district=new DistrictEntity();
+		try (Connection conn=ConnectionJDBCUtil.getConnection();
 				Statement st = conn.createStatement();
 				ResultSet rs = st.executeQuery(sql)) {
-
-			if (rs.next()) {
-				districtEntity = new DistrictEntity();
-				districtEntity.setId(rs.getLong("id"));
-				districtEntity.setCode(rs.getString("code"));
-				districtEntity.setName(rs.getString("name"));
+			while(rs.next()) {
+				district.setId(rs.getLong("id"));
+				district.setCode(rs.getString("code"));
+				district.setName(rs.getString("name"));
 			}
-
-		} catch (SQLException ex) {
-			ex.printStackTrace();
+			
 		}
+		catch(SQLException e) {
+		 e.printStackTrace();
+		}
+		return district;
+		
 
-		return districtEntity;
+	
 	}
 }

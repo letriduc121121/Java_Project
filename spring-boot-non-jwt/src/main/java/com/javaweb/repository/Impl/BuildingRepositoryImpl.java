@@ -1,42 +1,34 @@
 package com.javaweb.repository.Impl;
 
+import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 
+import com.javaweb.builder.BuildingSearchBuilder;
 import com.javaweb.repository.BuildingRepository;
 import com.javaweb.repository.entity.BuildingEntity;
 import com.javaweb.utils.ConnectionJDBCUtil;
-import com.javaweb.utils.NumberFormatUtil;
-import com.javaweb.utils.StringUtil;
 
 @Repository // bean String
 public class BuildingRepositoryImpl implements BuildingRepository {
 
-	// connect jdbc
-	static final String DB_URL = "jdbc:mysql://localhost:3306/estatebasic";
-	static final String USER = "root";
-	static final String PASS = "123456";
-
 
 	@Override
-	public List<BuildingEntity> searchBuildings(Map<String, String> requestParams, List<String> typeCode) {
-	    // Dùng StringBuilder để nối chuỗi SQL an toàn và tránh lỗi append
-	    StringBuilder sql = new StringBuilder("SELECT DISTINCT b.* FROM building b");
+	public List<BuildingEntity> searchBuildings(BuildingSearchBuilder buildingSearchBuilder) {
+	    StringBuilder sql = new StringBuilder("SELECT  b.* FROM building b");
 
-	    
-	    buildJoin(requestParams, typeCode, sql);
+	    buildJoin(buildingSearchBuilder, sql);
 
 	   
 	    StringBuilder where=new StringBuilder(" where 1=1");
 
-	    buildWhere(requestParams, typeCode, where);
+	    buildWhere(buildingSearchBuilder, where);
 	    sql.append(where);
 	    sql.append(" GROUP BY b.id");
 	    
@@ -48,71 +40,83 @@ public class BuildingRepositoryImpl implements BuildingRepository {
 
 	
 	
-	private void buildJoin(Map<String, String> requestParams, List<String> typeCode,StringBuilder join) {
-		if(typeCode!=null && !typeCode.isEmpty()) {
-			join.append(" INNER JOIN buildingrenttype brt ON brt.buildingid = b.id");
-			join.append( " INNER JOIN renttype rt ON brt.renttypeid = rt.id ");
-		}
-		String staffId=requestParams.get("staffId");
-		if (staffId!= null) {
-			join.append(" INNER JOIN assignmentbuilding as ON as.buildingid = b.id ");
-		}
-		String rentAreaFrom=requestParams.get("areaFrom");
-		String rentAreaTo=requestParams.get("areaTo");
-		if (StringUtil.check(rentAreaTo) && StringUtil.check(rentAreaFrom)) {
-			join.append(" INNER JOIN rentarea ra ON ra.buildingid = b.id ");
-		}	
-		
+	private void buildJoin(BuildingSearchBuilder buildingSearchBuilder, StringBuilder join) {
+	    if(buildingSearchBuilder.getTypeCode() != null && !buildingSearchBuilder.getTypeCode().isEmpty()) {
+	        join.append(" INNER JOIN buildingrenttype  ON buildingrenttype.buildingid = b.id");
+	        join.append(" INNER JOIN renttype rt ON buildingrenttype.renttypeid = rt.id");
+	    }
+	    
+	    Long staffId =buildingSearchBuilder.getStaffId();
+	    if (staffId!=null) {
+	        join.append(" INNER JOIN assignmentbuilding ab ON ab.buildingid = b.id");
+	    }
+	    
+	    // Bug fixed: Uncomment và sửa logic để JOIN rentarea khi cần
+	    Long rentAreaFrom = buildingSearchBuilder.getRentAreaFrom();
+	    Long rentAreaTo = buildingSearchBuilder.getRentAreaTo();
+	    if (rentAreaFrom != null || rentAreaTo != null) {
+	        join.append(" INNER JOIN rentarea ra ON ra.buildingid = b.id");
+	    }
 	}
-	private void buildWhere(Map<String, String> requestParams, List<String> typeCode,StringBuilder where) {
-		for(Map.Entry<String, String> item:requestParams.entrySet()) {
-			if(!item.getKey().equals("staffId") && item.getKey().equals("typeCode") && !item.getKey().startsWith("rentArea") &&!item.getKey().startsWith("rentPrice")) {
-				String value=item.getValue();
-				if(NumberFormatUtil.isLong(value)|| NumberFormatUtil.isFloat(value)) {
-					where.append(" AND b. "+item.getKey().toLowerCase() +" = "+value );
-				}
-				else {
-					where.append(" AND b." +item.getKey().toLowerCase()+ " Like '%"+ value+"%'");
+
+	private void buildWhere(BuildingSearchBuilder buildingSearchBuilder, StringBuilder where) {
+		try {
+			Field[] fields= BuildingSearchBuilder.class.getDeclaredFields();
+			//duye qua tung bien
+		for(Field field: fields) {
+			field.setAccessible(true); // Bug fixed: Đặt ở đầu để có thể truy cập private fields
+			String fieldName=field.getName();
+			
+			if(!fieldName.equals("staffId") && !fieldName.equals("typeCode") && !fieldName.startsWith("rentArea") && !fieldName.startsWith("rentPrice")) {
+				Object value=field.get(buildingSearchBuilder);// lay value cua 1 field trong doi tuong BuildingSearchBuilder
+					if(value !=null) {
+						if(field.getType().getName().equals("java.lang.Long") || field.getType().getName().equals("java.lang.Integer")) {
+							where.append(" AND b.").append(fieldName.toLowerCase()).append(" = ").append(value);
+						}
+						else {
+							where.append(" AND b.").append(fieldName.toLowerCase()).append(" LIKE '%").append(value).append("%'");
+						}
+					}
 				}
 			}
 		}
-		//special
-		String staffId=requestParams.get("staffId");
-		if(StringUtil.check(staffId)) {
-			where.append(" AND as.staffid = "+ staffId);
+		catch(Exception e) {
+			e.printStackTrace();
 		}
-		
-		//price
-		String rentPriceFrom=requestParams.get("rentPriceFrom");
-		String rentPriceTo=requestParams.get("rentPriceTo");
-		if(StringUtil.check(rentPriceFrom)) {
-			where.append(" AND b.rentprice >= " +rentPriceFrom);
-		}
-		if(StringUtil.check(rentPriceTo)) {
-			where.append(" AND b.rentprice <= " +rentPriceTo);
-		}
-		//area
-		String areaFrom=requestParams.get("areaFrom");
-		String areaTo=requestParams.get("areaTo");
-		if(StringUtil.check(areaFrom)) {
-			where.append(" AND ra.value >="+ areaFrom);
-		}
-		if(StringUtil.check(areaTo)) {
-			where.append(" AND ra.value >="+ areaTo);
-		}
-		//type code java7
-//		if(typeCode !=null && !typeCode.isEmpty()) {
-//			List<String> type=new ArrayList<String>();
-//			for(String it: typeCode) {
-//				type.add("'"+it+"'");
-//			}
-//			where.append(" AND rt.code in (" +String.join(",", type)+")");// in('tang-triet','abc');
-//			
-//		}
-		//java 8: stream
-		
-		
-		
+	    //special
+	    Long staffId = buildingSearchBuilder.getStaffId();
+	    if(staffId !=null) {
+	        where.append(" AND ab.staffid = ").append(staffId);
+	    }
+	    // rentArea 
+	    Long rentAreaFrom = buildingSearchBuilder.getRentAreaFrom();
+	    Long rentAreaTo = buildingSearchBuilder.getRentAreaTo();
+	    if(rentAreaFrom !=null) {
+	        where.append(" AND ra.value >= ").append(rentAreaFrom);
+	    }
+	    if(rentAreaTo!=null) {
+	        where.append(" AND ra.value <= ").append(rentAreaTo);
+	    }
+	    // rentPrice 
+	    Long rentPriceFrom = buildingSearchBuilder.getRentPriceFrom();
+	    Long rentPriceTo = buildingSearchBuilder.getRentPriceTo();
+	    if(rentPriceFrom!=null) {
+	        where.append(" AND b.rentprice >= ").append(rentPriceFrom);
+	    }
+	    if(rentPriceTo !=null) {
+	        where.append(" AND b.rentprice <= ").append(rentPriceTo);
+	    }
+	    
+	
+	    List<String> typeCode=buildingSearchBuilder.getTypeCode();
+	    // typeCode
+	    if(typeCode != null && !typeCode.isEmpty()) {
+	        List<String> codes = new ArrayList<>();
+	        for(String code : typeCode) {
+	            codes.add("'" + code + "'");
+	        }
+	        where.append(" AND rt.code IN (").append(String.join(",", codes)).append(")");
+	    }
 	}
 
 	 private List<BuildingEntity> executeQuery(String sql) {

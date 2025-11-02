@@ -1,38 +1,49 @@
 package com.javaweb.service.impl;
 
-import com.javaweb.model.DTO.BuildingResponseDTO;
-import com.javaweb.repository.BuildingRepository;
-import com.javaweb.repository.entity.BuildingEntity;
-import com.javaweb.service.BuildingService;
-import com.javaweb.convert.BuildingConverter;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.javaweb.builder.BuildingSearchBuilder;
+import com.javaweb.convert.BuildingConvertor;
+import com.javaweb.convert.BuildingSearchBuilderConvertor;
+import com.javaweb.model.DTO.BuildingResponseDTO;
+import com.javaweb.repository.BuildingRepository;
+import com.javaweb.repository.entity.BuildingEntity;
+import com.javaweb.service.BuildingService;
+
 @Service
 public class BuildingServiceImpl implements BuildingService {
 
-    @Autowired
-    private BuildingRepository buildingRepository;
+	@Autowired
+	private BuildingRepository buildingRepository;
 
-    @Autowired
-    private BuildingConverter buildingConverter;
+	@Autowired
+	private BuildingConvertor buildingConvertor;
 
-    @Override
-    public List<BuildingResponseDTO> searchBuildings(Map<String, String> requestParams, List<String> typeCode) {
-    	
-        List<BuildingEntity> buildingEntities = buildingRepository.searchBuildings(requestParams, typeCode);
-        List<BuildingResponseDTO> buildingResponseDTOs = new ArrayList<>();
+	@Autowired
+	// dug cai nay ko can khoi tao
+	private BuildingSearchBuilderConvertor buildingSearchBuilderConvertor;
 
-        for (BuildingEntity entity : buildingEntities) {
-            BuildingResponseDTO buildingResponseDTO = buildingConverter.convertToBuildingResponseDTO(entity);
-            buildingResponseDTOs.add(buildingResponseDTO);
-        }
+	@Override
+	public List<BuildingResponseDTO> searchBuildings(Map<String, String> requestParams, List<String> typeCode) {
+		
+		BuildingSearchBuilder buildingSearchBuilder = buildingSearchBuilderConvertor
+				.toBuildingSearchBuilder(requestParams, typeCode);
+		
+		List<BuildingEntity> buildingEntities = buildingRepository.searchBuildings(buildingSearchBuilder);
+		
+		List<BuildingResponseDTO> buildingResponseDTOs = new ArrayList<>();
+		
+		for (BuildingEntity entity : buildingEntities) {
+			 BuildingResponseDTO buildingResponseDTO =buildingConvertor.convertToBuildingResponseDTO(entity);
+			//BuildingResponseDTO buildingResponseDTO = buildingSearchMapper.toBuildingResponseDTO(entity);
+			buildingResponseDTOs.add(buildingResponseDTO);
+		}
 
-        return buildingResponseDTOs;
-    }
+		return buildingResponseDTOs;
+	}
 }
