@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.javaweb.service.BuildingService;
 
 @RestController
-@RequestMapping(value = "/search")
+@RequestMapping(value = "/buildings")
 
 public class BuildingAPI {
 
