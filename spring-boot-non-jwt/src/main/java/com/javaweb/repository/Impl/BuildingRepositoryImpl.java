@@ -65,7 +65,7 @@ public class BuildingRepositoryImpl implements BuildingRepository {
 	    }
 	}
 
-	private void buildWhere(Map<String, String> requestParams, List<String> typeCode, StringBuilder where) {
+    private void buildWhere(Map<String, String> requestParams, List<String> typeCode, StringBuilder where) {
 	    for(Map.Entry<String, String> item : requestParams.entrySet()) {
 	        if(!item.getKey().equals("staffId") 
 	           && !item.getKey().equals("typeCode") 
