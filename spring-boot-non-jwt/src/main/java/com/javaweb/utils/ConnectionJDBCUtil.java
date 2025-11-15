@@ -10,7 +10,7 @@ import com.javaweb.repository.entity.BuildingEntity;
 
 public class ConnectionJDBCUtil {
 	// connect jdbc
-		static final String DB_URL = "jdbc:mysql://localhost:3306/estatebasic_1";
+		static final String DB_URL = "jdbc:mysql://localhost:3306/estatebasic";
 		static final String USER = "root";
 		static final String PASS = "123456";
 		public static final Connection getConnection() {
