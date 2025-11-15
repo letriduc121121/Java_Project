@@ -62,7 +62,7 @@ public class BuildingServiceImpl implements BuildingService {
 	@Transactional
 	public BuildingEntity create(BuildingRequestDTO building) {
 		// chuyen DTO SANG ENTITY
-		BuildingEntity buildingEntity = buildingConvertor.toBuildingEntity(building);
+		BuildingEntity buildingEntity = buildingConvertor.toBuildingEntity_2(building);
 		entityManager.persist(buildingEntity);
 		entityManager.flush();// cap nhat DB ngay lap tuc
 		Query q = entityManager.createNativeQuery("SELECT b.* FROM building b", BuildingEntity.class);

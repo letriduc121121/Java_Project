@@ -46,7 +46,18 @@ public class BuildingConvertor {
 
 		return dto;
 	}
+	public BuildingEntity toBuildingEntity_2(BuildingRequestDTO buildingRequestDTO) {
+		// dùng model mapper để chuyển DTO sang Entity
+		BuildingEntity buildingEntity = modelMapper.map(buildingRequestDTO, BuildingEntity.class);
+		DistrictEntity district = entityManager.find(DistrictEntity.class, buildingRequestDTO.getDistrictId());
+		if (district != null) {
+			buildingEntity.setDistrictEntity(district);
+		} else {
+			throw new InvalidBuildingException("Not found District by Id");
+		}
 
+		return buildingEntity;
+	}
 	public BuildingEntity toBuildingEntity(BuildingRequestDTO buildingRequestDTO) {
 		// tim ID
 		BuildingEntity buildingEntity = entityManager.find(BuildingEntity.class, buildingRequestDTO.getId());
