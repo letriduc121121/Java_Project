@@ -13,16 +13,17 @@ import org.springframework.stereotype.Repository;
 
 import com.javaweb.builder.BuildingSearchBuilder;
 import com.javaweb.repository.BuildingRepository;
+import com.javaweb.repository.custome.BuildingRepositoryCustom;
 import com.javaweb.repository.entity.BuildingEntity;
 
 @Repository
-@Primary  // Đánh dấu đây là implementation chính (ưu tiên sử dụng)
-public class BuildingRepositoryImpl implements BuildingRepository {
+@Primary 
+public class BuildingRepositoryImpl implements BuildingRepositoryCustom  {
 	@PersistenceContext
 	private EntityManager entityManager;
 
 	@Override
-	public List<BuildingEntity> searchBuildings(BuildingSearchBuilder buildingSearchBuilder) {
+	public List<BuildingEntity> findAll(BuildingSearchBuilder buildingSearchBuilder) {
 		StringBuilder sql = new StringBuilder("SELECT  b.* FROM building b");
 
 		buildJoin(buildingSearchBuilder, sql);

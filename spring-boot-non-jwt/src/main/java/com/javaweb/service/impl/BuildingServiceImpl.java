@@ -19,6 +19,7 @@ import com.javaweb.exception.InvalidBuildingException;
 import com.javaweb.model.DTO.BuildingRequestDTO;
 import com.javaweb.model.DTO.BuildingResponseDTO;
 import com.javaweb.repository.BuildingRepository;
+import com.javaweb.repository.RentAreaRepository;
 import com.javaweb.repository.entity.BuildingEntity;
 import com.javaweb.repository.entity.RentAreaEntity;
 import com.javaweb.service.BuildingService;
@@ -28,6 +29,9 @@ public class BuildingServiceImpl implements BuildingService {
 
 	@Autowired
 	private BuildingRepository buildingRepository;
+
+	@Autowired
+	private RentAreaRepository areaRepository;
 
 	@Autowired
 	private BuildingConvertor buildingConvertor;
@@ -44,7 +48,7 @@ public class BuildingServiceImpl implements BuildingService {
 		BuildingSearchBuilder buildingSearchBuilder = buildingSearchBuilderConvertor
 				.toBuildingSearchBuilder(requestParams, typeCode);
 
-		List<BuildingEntity> buildingEntities = buildingRepository.searchBuildings(buildingSearchBuilder);
+		List<BuildingEntity> buildingEntities = buildingRepository.findAll(buildingSearchBuilder);
 
 		List<BuildingResponseDTO> buildingResponseDTOs = new ArrayList<>();
 
@@ -68,14 +72,17 @@ public class BuildingServiceImpl implements BuildingService {
 		Query q = entityManager.createNativeQuery("SELECT b.* FROM building b", BuildingEntity.class);
 		int cout = q.getResultList().size();
 
+		List<RentAreaEntity> list = new ArrayList<RentAreaEntity>();
+
 		if (building.getRentAreas() != null) {
 			for (Long rentAreaValue : building.getRentAreas()) {
 				RentAreaEntity areaEntity = new RentAreaEntity();
 				areaEntity.setBuilding(buildingEntity);
 				areaEntity.setValue(rentAreaValue);
-				entityManager.persist(areaEntity);
+				list.add(areaEntity);
 			}
 		}
+		areaRepository.saveAll(list);
 		return buildingEntity;
 	}
 
@@ -100,14 +107,7 @@ public class BuildingServiceImpl implements BuildingService {
 	@Override
 	@Transactional
 	public void delete(List<Long> ids) {
-		for (Long id : ids) {
-			BuildingEntity building = entityManager.find(BuildingEntity.class, id);
-			if (building == null) {
-				throw new InvalidBuildingException("Building not found");
-			}
-			entityManager.createQuery("DELETE FROM RentAreaEntity r WHERE r.building.id = :id")
-			.setParameter("id", building.getId()).executeUpdate();
-			entityManager.remove(building);
-		}
+		areaRepository.deleteAllByBuilding_IdIn(ids);
+		buildingRepository.deleteByIdIn(ids);
 	}
 }
