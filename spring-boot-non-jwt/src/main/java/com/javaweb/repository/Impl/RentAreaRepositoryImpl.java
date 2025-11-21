@@ -17,6 +17,9 @@ import com.javaweb.utils.ConnectionJDBCUtil;
 @Repository
 public class RentAreaRepositoryImpl implements RentAreaRepository {
 
+	static final String DB_URL = "jdbc:mysql://localhost:3306/estatebasic";
+	static final String USER = "root";
+	static final String PASS = "123456";
 
 	@Override
 	public List<RentAreaEntity> findRentAreaByBuildingId(Long buildingId) {
@@ -24,10 +27,10 @@ public class RentAreaRepositoryImpl implements RentAreaRepository {
 		String sql = "SELECT * FROM rentarea WHERE rentarea.buildingid = " + buildingId;
 
 		List<RentAreaEntity> rentAreaEntities = new ArrayList<RentAreaEntity>();
-		try (Connection conn=ConnectionJDBCUtil.getConnection();
+		try (Connection conn = ConnectionJDBCUtil.getConnection();
 				Statement st = conn.createStatement();
 				ResultSet rs = st.executeQuery(sql)) {
-			while(rs.next()) {
+			while (rs.next()) {
 				RentAreaEntity rentAreaEntity = new RentAreaEntity();
 
 				rentAreaEntity.setId(rs.getLong("id"));
@@ -40,10 +43,9 @@ public class RentAreaRepositoryImpl implements RentAreaRepository {
 
 				rentAreaEntities.add(rentAreaEntity);
 			}
-			
-		}
-		catch(SQLException e) {
-		 e.printStackTrace();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
 
 		return rentAreaEntities;

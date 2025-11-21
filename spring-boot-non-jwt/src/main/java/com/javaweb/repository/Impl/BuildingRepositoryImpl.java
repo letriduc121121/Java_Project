@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Repository;
 
@@ -108,15 +109,16 @@ public class BuildingRepositoryImpl implements BuildingRepository {
 	    }
 	    
 	
-	    List<String> typeCode=buildingSearchBuilder.getTypeCode();
-	    // typeCode
-	    if(typeCode != null && !typeCode.isEmpty()) {
-	        List<String> codes = new ArrayList<>();
-	        for(String code : typeCode) {
-	            codes.add("'" + code + "'");
-	        }
-	        where.append(" AND rt.code IN (").append(String.join(",", codes)).append(")");
+	    List<String> typeCode = buildingSearchBuilder.getTypeCode();
+
+	    if (typeCode != null && !typeCode.isEmpty()) {
+	        String codes = typeCode.stream()
+	                .map(code -> "'" + code + "'")
+	                .collect(Collectors.joining(","));
+	        
+	        where.append(" AND rt.code IN (").append(codes).append(")");
 	    }
+
 	}
 
 	 private List<BuildingEntity> executeQuery(String sql) {

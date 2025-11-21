@@ -10,7 +10,7 @@ import com.javaweb.utils.MapUtil;
 @Component
 public class BuildingSearchBuilderConvertor {
 
-    public BuildingSearchBuilder toBuildingSearchBuilder(Map<String, String> params, List<String> typeCode) {
+	public BuildingSearchBuilder toBuildingSearchBuilder(Map<String, String> params, List<String> typeCode) {
 
         BuildingSearchBuilder buildingSearchBuilder = new BuildingSearchBuilder.Builder()
                 .setName(MapUtil.getObject(params, "name", String.class))
