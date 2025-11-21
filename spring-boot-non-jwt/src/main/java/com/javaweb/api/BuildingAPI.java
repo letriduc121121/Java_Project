@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.javaweb.service.BuildingService;
 
 @RestController
-@RequestMapping(value = "/search")
+@RequestMapping(value = "/buildings")
 
 public class BuildingAPI {
 
@@ -20,12 +20,10 @@ public class BuildingAPI {
 	private BuildingService buildingService;
 
 	@GetMapping()
-	 public Object getBuilding(
-	            @RequestParam Map<String, String> requestParams,
-	            @RequestParam(name = "typeCode", required = false) List<String> typeCode) {
-		Object responseDTO = buildingService.searchBuildings(requestParams,typeCode);
+	public Object getBuilding(@RequestParam Map<String, String> requestParams,
+			@RequestParam(name = "typeCode", required = false) List<String> typeCode) {
+		Object responseDTO = buildingService.searchBuildings(requestParams, typeCode);
 		return responseDTO;
 	}
-
 
 }

@@ -15,29 +15,28 @@ import com.javaweb.utils.ConnectionJDBCUtil;
 @Repository
 public class DistrictRepositoryImpl implements DistrictRepository {
 
-
+	static final String DB_URL = "jdbc:mysql://localhost:3306/estatebasic";
+	static final String USER = "root";
+	static final String PASS = "123456";
 
 	@Override
 	public DistrictEntity findDistrictById(Long districtId) {
 		// func1
-		String sql ="SELECT * FROM district WHERE id = " + districtId;
-		DistrictEntity district=new DistrictEntity();
-		try (Connection conn=ConnectionJDBCUtil.getConnection();
+		String sql = "SELECT * FROM district WHERE id = " + districtId;
+		DistrictEntity district = new DistrictEntity();
+		try (Connection conn = ConnectionJDBCUtil.getConnection();
 				Statement st = conn.createStatement();
 				ResultSet rs = st.executeQuery(sql)) {
-			while(rs.next()) {
+			while (rs.next()) {
 				district.setId(rs.getLong("id"));
 				district.setCode(rs.getString("code"));
 				district.setName(rs.getString("name"));
 			}
-			
-		}
-		catch(SQLException e) {
-		 e.printStackTrace();
+
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
 		return district;
-		
 
-	
 	}
 }

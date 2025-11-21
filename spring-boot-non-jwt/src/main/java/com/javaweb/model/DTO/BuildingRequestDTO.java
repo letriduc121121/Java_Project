@@ -20,7 +20,8 @@ public class BuildingRequestDTO {
 	private Long staffId;
 	private List<String> typeCode;
 
-	public BuildingRequestDTO() {}
+	public BuildingRequestDTO() {
+	}
 
 	public String getName() {
 		return name;
@@ -150,5 +151,4 @@ public class BuildingRequestDTO {
 		this.typeCode = typeCode;
 	}
 
-	
 }
