@@ -1,8 +1,8 @@
 package com.javaweb.repository.Impl;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -12,13 +12,12 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
 
 import com.javaweb.builder.BuildingSearchBuilder;
-import com.javaweb.repository.BuildingRepository;
 import com.javaweb.repository.custome.BuildingRepositoryCustom;
 import com.javaweb.repository.entity.BuildingEntity;
 
 @Repository
-@Primary 
-public class BuildingRepositoryImpl implements BuildingRepositoryCustom  {
+@Primary
+public class BuildingRepositoryImpl implements BuildingRepositoryCustom {
 	@PersistenceContext
 	private EntityManager entityManager;
 
@@ -35,7 +34,7 @@ public class BuildingRepositoryImpl implements BuildingRepositoryCustom  {
 		sql.append(" GROUP BY b.id");
 
 		Query query = entityManager.createNativeQuery(sql.toString(), BuildingEntity.class);
-		
+
 		@SuppressWarnings("unchecked")
 		List<BuildingEntity> result = (List<BuildingEntity>) query.getResultList();
 		return result;
@@ -111,14 +110,13 @@ public class BuildingRepositoryImpl implements BuildingRepositoryCustom  {
 		}
 
 		List<String> typeCode = buildingSearchBuilder.getTypeCode();
-		// typeCode
+
 		if (typeCode != null && !typeCode.isEmpty()) {
-			List<String> codes = new ArrayList<>();
-			for (String code : typeCode) {
-				codes.add("'" + code + "'");
-			}
-			where.append(" AND rt.code IN (").append(String.join(",", codes)).append(")");
+			String codes = typeCode.stream().map(code -> "'" + code + "'").collect(Collectors.joining(","));
+
+			where.append(" AND rt.code IN (").append(codes).append(")");
 		}
+
 	}
 
 }

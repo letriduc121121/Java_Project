@@ -10,6 +10,7 @@ import com.javaweb.utils.MapUtil;
 @Component
 public class BuildingSearchBuilderConvertor {
 
+	//nhận dữ liệu thô từ request → ép kiểu → trả object sạch để dùng build query.
     public BuildingSearchBuilder toBuildingSearchBuilder(Map<String, String> params, List<String> typeCode) {
 
         BuildingSearchBuilder buildingSearchBuilder = new BuildingSearchBuilder.Builder()
